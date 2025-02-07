@@ -16,20 +16,13 @@ local Tabs = {
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
-Library:Notify("Loaded", 5)
+Library:Notify("Loaded", 5) 
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local CollectionService = game:GetService("CollectionService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = game:GetService("Workspace").CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-local SelfActor = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
-local char = LocalPlayer.Character
+local char = game.Players.LocalPlayer.Character
 local humanoid = char:WaitForChild("Humanoid")
+local Camera = game:GetService("Workspace").CurrentCamera
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local isSpaceHeld = false
 local isControlHeld = false
@@ -40,7 +33,7 @@ local isDHeld = false
 local FlyToggle = false
 local speedHackEnabled = false
 local jumpEnabled = true
-local bodyVelocity
+local bodyVelocity = nil
 local jumppower = 50
 local SpeedC = 50
 local FlySpeed = 50
@@ -49,6 +42,16 @@ local AutoParry = Tabs.Main:AddLeftGroupbox('Auto Parry')
 local Misc = Tabs.Main:AddLeftGroupbox('Misc')
 local Misc2 = Tabs.Main:AddRightGroupbox('Misc 2')
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local CollectionService = game:GetService("CollectionService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = game:GetService("Workspace").CurrentCamera
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local LocalPlayer = Players.LocalPlayer
+
+local SelfActor = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
 local isAimbotEnabled = false
 local fovAngle = 45
 local smoothness = 0.3
@@ -64,11 +67,11 @@ local AirDropNotifier = false
 local AirDropHighlight = false
 
 local CONFIG = {
-    ATTACK_RANGE = 25,
-    PREDICTION_THRESHOLD = 0.65,
-    BASE_REACTION_TIME = 0.08,
-    SHIELD_COOLDOWN = 0.3,
-    VELOCITY_THRESHOLD = 8,
+    ATTACK_RANGE = 25, 
+    PREDICTION_THRESHOLD = 0.65, 
+    BASE_REACTION_TIME = 0.08, 
+    SHIELD_COOLDOWN = 0.3, 
+    VELOCITY_THRESHOLD = 8, 
     ANIMATION_TRACK_NAMES = {
         "slash", "swing", "attack", "punch", "kick"
     },
@@ -84,7 +87,7 @@ local State = {
 }
 
 local PredictionSystem = {
-    velocityHistory = {},
+    velocityHistory = {}, 
     maxHistoryLength = 10,
 
     updateVelocityHistory = function(self, player, velocity)
@@ -106,7 +109,7 @@ local PredictionSystem = {
         local weightSum = 0
 
         for i, velocity in ipairs(history) do
-            local weight = i / #history
+            local weight = i / #history 
             averageVelocity = averageVelocity + (velocity * weight)
             weightSum = weightSum + weight
         end
@@ -203,6 +206,7 @@ function LockCameraOnActor(actor)
     end
 end
 
+
 local function activateShield(threatLevel)
     local currentTime = os.clock()
     if currentTime - State.lastShieldTime < CONFIG.SHIELD_COOLDOWN then return end
@@ -212,7 +216,7 @@ local function activateShield(threatLevel)
 
     State.lastShieldTime = currentTime
     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-    task.wait()
+    task.wait() 
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
 
     if CONFIG.DEBUG_MODE then
@@ -280,15 +284,16 @@ local function calculateThreatLevel(player)
 end
 
 RunService.RenderStepped:Connect(function()
-    if AimbotToggle and isAimbotEnabled then
+if AimbotToggle then
+	 if isAimbotEnabled then
         local nearestActor = GetNearestActorWithinFOV(fovAngle)
         if nearestActor then
             LockCameraOnActor(nearestActor)
         end
     end
+end
 end)
-
-RunService.RenderStepped:Connect(function()
+RunService.RenderStepped:connect(function()
     if HitboxResizer then
         for _, player in ipairs(Players:GetPlayers()) do
             if player.Name ~= LocalPlayer.Name then
@@ -348,7 +353,6 @@ Players.PlayerAdded:Connect(function(player)
         setupAnimationTracking(character)
     end)
 end)
-
 for _, player in ipairs(Players:GetPlayers()) do
     if player.Character then
         setupAnimationTracking(player.Character)
@@ -437,21 +441,20 @@ Misc:AddToggle('Highlight Airdrop', {
         AirDropHighlight = Value
     end
 })
-
 Misc2:AddToggle('Aimbot', {
     Text = 'Aimbot',
     Default = false,
     Tooltip = 'Aimbot',
     Callback = function(Value)
-        AimbotToggle = Value
-    end
+AimbotToggle = Value
+	end
 }):AddKeyPicker('AimbotKeybind', {
-    Default = 'R',
+    Default = 'R', 
     SyncToggleState = true,
     Mode = 'Toggle',
     Text = 'Aimbot Keybind',
     NoUI = false,
-    Callback = function(Value)
+   Callback = function(Value)
         isAimbotEnabled = Value
     end,
 })
