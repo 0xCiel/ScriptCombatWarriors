@@ -118,16 +118,19 @@ local PredictionSystem = {
     end
 }
 
-local function createBodyVelocity()
-    if FlyToggle and not flyBodyVelocity then
-        flyBodyVelocity = Instance.new("BodyVelocity")
-        flyBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
-        flyBodyVelocity.Parent = char.HumanoidRootPart
+local function createFlyBV()
+    if not flyBV then
+        flyBV = Instance.new("BodyVelocity")
+        flyBV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        flyBV.Parent = char.HumanoidRootPart
     end
-    if speedHackEnabled and not walkSpeedBodyVelocity then
-        walkSpeedBodyVelocity = Instance.new("BodyVelocity")
-        walkSpeedBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
-        walkSpeedBodyVelocity.Parent = char.HumanoidRootPart
+end
+
+local function createSpeedBV()
+    if not speedBV then
+        speedBV = Instance.new("BodyVelocity")
+        speedBV.MaxForce = Vector3.new(math.huge, 0, math.huge)
+        speedBV.Parent = char.HumanoidRootPart
     end
 end
 
@@ -490,7 +493,14 @@ Misc:AddToggle('Fly', {
     Tooltip = 'Fly',
     Callback = function(Value)
         FlyToggle = Value
-        createBodyVelocity()
+        if FlyToggle then
+            createFlyBV()
+        else
+            if flyBV then
+                flyBV:Destroy()
+                flyBV = nil
+            end
+        end
     end
 }):AddKeyPicker('FlyKeybind', {
     Default = 'J',
@@ -520,7 +530,14 @@ Misc:AddToggle('WalkSpeed', {
     Tooltip = 'Walk Speed',
     Callback = function(Value)
         speedHackEnabled = Value
-        createBodyVelocity()
+        if speedHackEnabled then
+            createSpeedBV()
+        else
+            if speedBV then
+                speedBV:Destroy()
+                speedBV = nil
+            end
+        end
     end
 }):AddKeyPicker('WalkSpeedKeyBind', {
     Default = 'N',
@@ -544,50 +561,34 @@ Misc:AddSlider('SpeedMultiplier', {
     end
 })
 
-local function updateVelocity()
-    if FlyToggle and flyBodyVelocity then
-        flyBodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+local function updateFlyVelocity()
+    if not flyBV then return end
 
-        local forwardVelocity = Vector3.new(0, 0, 0)
-        local upwardVelocity = Vector3.new(0, 0, 0)
-        local sidewaysVelocity = Vector3.new(0, 0, 0)
+    local forwardVelocity = Vector3.new(0, 0, 0)
+    local upwardVelocity = Vector3.new(0, 0, 0)
+    local sidewaysVelocity = Vector3.new(0, 0, 0)
 
-        if isSpaceHeld then
-            upwardVelocity = Vector3.new(0, FlySpeed, 0)
-        elseif isControlHeld then
-            upwardVelocity = Vector3.new(0, -FlySpeed, 0)
-        end
-
-        if isWHeld then
-            forwardVelocity = Camera.CFrame.LookVector * FlySpeed
-        elseif isSHeld then
-            forwardVelocity = -Camera.CFrame.LookVector * FlySpeed
-        end
-
-        if isAHeld then
-            sidewaysVelocity = -Camera.CFrame.RightVector * FlySpeed
-        elseif isDHeld then
-            sidewaysVelocity = Camera.CFrame.RightVector * FlySpeed
-        end
-
-        flyBodyVelocity.Velocity = forwardVelocity + upwardVelocity + sidewaysVelocity
-    elseif flyBodyVelocity then
-        flyBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+    if isSpaceHeld then
+        upwardVelocity = Vector3.new(0, FlySpeed, 0)
+    elseif isControlHeld then
+        upwardVelocity = Vector3.new(0, -FlySpeed, 0)
     end
 
-    if speedHackEnabled and walkSpeedBodyVelocity then
-        walkSpeedBodyVelocity.MaxForce = Vector3.new(math.huge, 0, math.huge)
-
-        local forwardVelocity = Vector3.new(0, 0, 0)
-        if humanoid.MoveDirection.Magnitude > 0 then
-            forwardVelocity = humanoid.MoveDirection * SpeedC
-        end
-
-        walkSpeedBodyVelocity.Velocity = forwardVelocity
-    elseif walkSpeedBodyVelocity then
-        walkSpeedBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+    if isWHeld then
+        forwardVelocity = Camera.CFrame.LookVector * FlySpeed
+    elseif isSHeld then
+        forwardVelocity = -Camera.CFrame.LookVector * FlySpeed
     end
+
+    if isAHeld then
+        sidewaysVelocity = -Camera.CFrame.RightVector * FlySpeed
+    elseif isDHeld then
+        sidewaysVelocity = Camera.CFrame.RightVector * FlySpeed
+    end
+
+    flyBV.Velocity = forwardVelocity + upwardVelocity + sidewaysVelocity
 end
+
 
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Space then
@@ -603,7 +604,9 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.D then
         isDHeld = true
     end
-    updateVelocity()
+    if FlyToggle then
+        updateFlyVelocity()
+    end
 end)
 
 UIS.InputEnded:Connect(function(input, gameProcessed)
@@ -620,13 +623,29 @@ UIS.InputEnded:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.D then
         isDHeld = false
     end
-    updateVelocity()
+    if FlyToggle then
+        updateFlyVelocity()
+    else
+        if flyBV then
+            flyBV.Velocity = Vector3.new(0, 0, 0)
+        end
+    end
 end)
 
 RunService.RenderStepped:Connect(function()
-    updateVelocity()
+    if FlyToggle then
+        updateFlyVelocity()
+    end
+    if speedHackEnabled and humanoid.MoveDirection.Magnitude > 0 then
+        if speedBV then
+            speedBV.Velocity = humanoid.MoveDirection * SpeedC
+        end
+    else
+        if speedBV then
+            speedBV.Velocity = Vector3.new(0, 0, 0)
+        end
+    end
 end)
-
 
 Library:SetWatermarkVisibility(true)
 
