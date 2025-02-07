@@ -32,9 +32,7 @@ local isAHeld = false
 local isDHeld = false
 local FlyToggle = false
 local speedHackEnabled = false
-local jumpEnabled = true
 local bodyVelocity = nil
-local jumppower = 50
 local SpeedC = 50
 local FlySpeed = 50
 
@@ -530,36 +528,6 @@ Misc:AddSlider('SpeedMultiplier', {
     end
 })
 
-Misc:AddToggle('Jump', {
-    Text = 'Infinite Jump',
-    Default = false,
-    Tooltip = 'Enable Infinite Jump',
-    Callback = function(Value)
-        jumpEnabled = Value
-        createBodyVelocity()
-    end
-}):AddKeyPicker('JumpKeybind', {
-    Default = 'K',
-    SyncToggleState = true,
-    Mode = 'Toggle',
-    Text = 'Jump Keybind',
-    NoUI = false,
-    Callback = function(Value)
-        Toggles.Jump:SetValue(Value)
-    end,
-})
-
-Misc:AddSlider('JumpPower', {
-    Text = 'Jump Power',
-    Default = 50,
-    Min = 0,
-    Max = 200,
-    Rounding = 0,
-    Callback = function(Value)
-        jumppower = Value
-    end
-})
-
 local function updateVelocity()
     if not bodyVelocity then return end
 
@@ -601,11 +569,6 @@ end
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Space then
         isSpaceHeld = true
-        if jumpEnabled and not gameProcessed then
-            createBodyVelocity()
-            bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0)
-            bodyVelocity.Velocity = Vector3.new(0, jumppower, 0)
-        end
     elseif input.KeyCode == Enum.KeyCode.LeftControl then
         isControlHeld = true
     elseif input.KeyCode == Enum.KeyCode.W then
