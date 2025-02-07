@@ -122,7 +122,7 @@ local function createFlyBV()
     if not flyBV then
         flyBV = Instance.new("BodyVelocity")
         flyBV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        flyBV.Parent = char.HumanoidRootPart
+        flyBV.Parent = SelfActor.HumanoidRootPart
     end
 end
 
@@ -130,7 +130,7 @@ local function createSpeedBV()
     if not speedBV then
         speedBV = Instance.new("BodyVelocity")
         speedBV.MaxForce = Vector3.new(math.huge, 0, math.huge)
-        speedBV.Parent = char.HumanoidRootPart
+        speedBV.Parent = SelfActor.HumanoidRootPart
     end
 end
 
