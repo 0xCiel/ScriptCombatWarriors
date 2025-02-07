@@ -415,10 +415,20 @@ Misc:AddSlider('Hitbox Size', {
     Text = 'Hitbox Size',
     Default = 15,
     Min = 1,
-    Max = 50,
+    Max = 15,
     Rounding = 1,
     Callback = function(Value)
         headSize = Value
+    end
+})
+Misc:AddSlider('HitboxTransparency', {
+    Text = 'Hitbox Transparency',
+    Default = 1,
+    Min = 0,
+    Max = 1,
+    Rounding = 1,
+    Callback = function(Value)
+        HitboxTransparency = Value
     end
 })
 
