@@ -457,6 +457,7 @@ Misc2:AddSlider('Aimbot Prediction Offset', {
         predictionMultiplier = Value
     end
 })
+--[[
 
 Misc:AddToggle('Fly', {
     Text = 'Fly',
@@ -531,6 +532,8 @@ Misc:AddSlider('SpeedMultiplier', {
         SpeedC = Value
     end
 })
+
+]]
 
 local function updateFlyVelocity()
     if not flyBV then return end
