@@ -32,7 +32,8 @@ local isAHeld = false
 local isDHeld = false
 local FlyToggle = false
 local speedHackEnabled = false
-local bodyVelocity = nil
+local flyBodyVelocity = nil
+local walkSpeedBodyVelocity = nil
 local SpeedC = 50
 local FlySpeed = 50
 
@@ -118,10 +119,15 @@ local PredictionSystem = {
 }
 
 local function createBodyVelocity()
-    if not bodyVelocity then
-        bodyVelocity = Instance.new("BodyVelocity")
-        bodyVelocity.MaxForce = Vector3.new(0, 0, 0)
-        bodyVelocity.Parent = char.HumanoidRootPart
+    if FlyToggle and not flyBodyVelocity then
+        flyBodyVelocity = Instance.new("BodyVelocity")
+        flyBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+        flyBodyVelocity.Parent = char.HumanoidRootPart
+    end
+    if speedHackEnabled and not walkSpeedBodyVelocity then
+        walkSpeedBodyVelocity = Instance.new("BodyVelocity")
+        walkSpeedBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+        walkSpeedBodyVelocity.Parent = char.HumanoidRootPart
     end
 end
 
@@ -539,14 +545,13 @@ Misc:AddSlider('SpeedMultiplier', {
 })
 
 local function updateVelocity()
-    if not bodyVelocity then return end
+    if FlyToggle and flyBodyVelocity then
+        flyBodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 
-    local forwardVelocity = Vector3.new(0, 0, 0)
-    local upwardVelocity = Vector3.new(0, 0, 0)
-    local sidewaysVelocity = Vector3.new(0, 0, 0)
+        local forwardVelocity = Vector3.new(0, 0, 0)
+        local upwardVelocity = Vector3.new(0, 0, 0)
+        local sidewaysVelocity = Vector3.new(0, 0, 0)
 
-    if FlyToggle then
-        bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
         if isSpaceHeld then
             upwardVelocity = Vector3.new(0, FlySpeed, 0)
         elseif isControlHeld then
@@ -564,16 +569,24 @@ local function updateVelocity()
         elseif isDHeld then
             sidewaysVelocity = Camera.CFrame.RightVector * FlySpeed
         end
-    elseif speedHackEnabled then
-        bodyVelocity.MaxForce = Vector3.new(math.huge, 0, math.huge)
+
+        flyBodyVelocity.Velocity = forwardVelocity + upwardVelocity + sidewaysVelocity
+    elseif flyBodyVelocity then
+        flyBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+    end
+
+    if speedHackEnabled and walkSpeedBodyVelocity then
+        walkSpeedBodyVelocity.MaxForce = Vector3.new(math.huge, 0, math.huge)
+
+        local forwardVelocity = Vector3.new(0, 0, 0)
         if humanoid.MoveDirection.Magnitude > 0 then
             forwardVelocity = humanoid.MoveDirection * SpeedC
         end
-    else
-        bodyVelocity.MaxForce = Vector3.new(0, 0, 0)
-    end
 
-    bodyVelocity.Velocity = forwardVelocity + upwardVelocity + sidewaysVelocity
+        walkSpeedBodyVelocity.Velocity = forwardVelocity
+    elseif walkSpeedBodyVelocity then
+        walkSpeedBodyVelocity.MaxForce = Vector3.new(0, 0, 0)
+    end
 end
 
 UIS.InputBegan:Connect(function(input, gameProcessed)
