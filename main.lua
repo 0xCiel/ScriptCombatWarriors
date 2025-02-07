@@ -287,33 +287,7 @@ local function calculateThreatLevel(player)
     return math.clamp(threatLevel, 0, 1)
 end
 
-RunService.RenderStepped:Connect(function()
-if AimbotToggle then
-	 if isAimbotEnabled then
-        local nearestActor = GetNearestActorWithinFOV(fovAngle)
-        if nearestActor then
-            LockCameraOnActor(nearestActor)
-        end
-    end
-end
-end)
-RunService.RenderStepped:connect(function()
-    if HitboxResizer then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player.Name ~= LocalPlayer.Name then
-                pcall(function()
-                    local head = player.Character.Head
-                    head.Size = Vector3.new(headSize, headSize, headSize)
-                    head.Transparency = HitboxTransparency
-                    head.BrickColor = BrickColor.new("Red")
-                    head.Material = "Neon"
-                    head.CanCollide = false
-                    head.Massless = true
-                end)
-            end
-        end
-    end
-end)
+
 
 game.workspace.Map.DescendantAdded:Connect(function(obj)
     if AirDropNotifier and (obj.Name == "Airdrop" or obj.Name == "SpecAirdrop" or obj.Name == "MythicalAirdrop") then
@@ -629,7 +603,30 @@ UIS.InputEnded:Connect(function(input, gameProcessed)
     end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.RenderStepped:connect(function()
+    if HitboxResizer then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Name ~= LocalPlayer.Name then
+                pcall(function()
+                    local head = player.Character.Head
+                    head.Size = Vector3.new(headSize, headSize, headSize)
+                    head.Transparency = HitboxTransparency
+                    head.BrickColor = BrickColor.new("Red")
+                    head.Material = "Neon"
+                    head.CanCollide = false
+                    head.Massless = true
+                end)
+            end
+        end
+    end
+if AimbotToggle then
+	 if isAimbotEnabled then
+        local nearestActor = GetNearestActorWithinFOV(fovAngle)
+        if nearestActor then
+            LockCameraOnActor(nearestActor)
+        end
+    end
+end
     if FlyToggle then
         updateFlyVelocity()
     end
