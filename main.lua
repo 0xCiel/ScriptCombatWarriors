@@ -18,11 +18,7 @@ local Tabs = {
 
 Library:Notify("Loaded", 5) 
 
-local char = game.Players.LocalPlayer.Character
-local humanoid = char:WaitForChild("Humanoid")
-local Camera = game:GetService("Workspace").CurrentCamera
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+
 
 local isSpaceHeld = false
 local isControlHeld = false
@@ -49,8 +45,9 @@ local UserInputService = game:GetService("UserInputService")
 local Camera = game:GetService("Workspace").CurrentCamera
 local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 local LocalPlayer = Players.LocalPlayer
-
 local SelfActor = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+local humanoid = SelfActor:WaitForChild("Humanoid")
+local UIS = game:GetService("UserInputService")
 local isAimbotEnabled = false
 local fovAngle = 45
 local smoothness = 0.3
