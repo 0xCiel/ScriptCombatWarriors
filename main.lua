@@ -627,6 +627,9 @@ if AimbotToggle then
         end
     end
 end
+end)
+
+RunService.Heartbeat:connect(function()
     if FlyToggle then
         updateFlyVelocity()
     end
@@ -640,7 +643,6 @@ end
         end
     end
 end)
-
 Library:SetWatermarkVisibility(true)
 
 local FrameTimer, FrameCounter, FPS = tick(), 0, 60
