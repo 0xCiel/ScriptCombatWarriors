@@ -415,7 +415,7 @@ Misc:AddSlider('Hitbox Size', {
     Text = 'Hitbox Size',
     Default = 15,
     Min = 1,
-    Max = 15,
+    Max = 25,
     Rounding = 1,
     Callback = function(Value)
         headSize = Value
