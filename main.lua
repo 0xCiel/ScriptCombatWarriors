@@ -434,7 +434,7 @@ Misc2:AddToggle('Aimbot', {
     Default = false,
     Tooltip = 'Aimbot',
     Callback = function(Value)
-AimbotToggle = Value
+isAimbotEnabled = Value
 	end
 }):AddKeyPicker('AimbotKeybind', {
     Default = 'R', 
@@ -443,7 +443,7 @@ AimbotToggle = Value
     Text = 'Aimbot Keybind',
     NoUI = false,
    Callback = function(Value)
-        isAimbotEnabled = Value
+        Toggles.Aimbot:SetValue(Value)
     end,
 })
 
@@ -622,14 +622,12 @@ RunService.RenderStepped:connect(function()
             end
         end
     end
-if AimbotToggle then
 	 if isAimbotEnabled then
         local nearestActor = GetNearestActorWithinFOV(fovAngle)
         if nearestActor then
             LockCameraOnActor(nearestActor)
         end
     end
-end
 end)
 
 RunService.Heartbeat:connect(function()
